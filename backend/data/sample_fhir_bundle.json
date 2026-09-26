@@ -1,0 +1,74 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "fhir-patient-001",
+        "name": [{ "family": "Fernandes", "given": ["Rohan"] }],
+        "gender": "male",
+        "birthDate": "1985-03-14"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Organization",
+        "id": "fhir-org-001",
+        "name": "Riverside General Hospital"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "fhir-practitioner-001",
+        "name": [{ "family": "Alvarez", "given": ["Maria"] }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "fhir-encounter-001",
+        "class": { "code": "emergency" },
+        "type": [{ "text": "Emergency room admission" }],
+        "subject": { "reference": "Patient/fhir-patient-001" },
+        "participant": [
+          { "individual": { "reference": "Practitioner/fhir-practitioner-001" } }
+        ],
+        "serviceProvider": { "reference": "Organization/fhir-org-001" },
+        "period": { "start": "2026-08-01T09:15:00Z", "end": "2026-08-01T12:40:00Z" }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "fhir-condition-001",
+        "subject": { "reference": "Patient/fhir-patient-001" },
+        "encounter": { "reference": "Encounter/fhir-encounter-001" },
+        "code": { "text": "Acute appendicitis (disorder)" },
+        "onsetDateTime": "2026-08-01T08:00:00Z"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "fhir-medication-001",
+        "subject": { "reference": "Patient/fhir-patient-001" },
+        "encounter": { "reference": "Encounter/fhir-encounter-001" },
+        "medicationCodeableConcept": { "text": "Ceftriaxone 1g IV" },
+        "authoredOn": "2026-08-01T10:00:00Z"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "fhir-observation-001",
+        "subject": { "reference": "Patient/fhir-patient-001" },
+        "encounter": { "reference": "Encounter/fhir-encounter-001" },
+        "code": { "text": "White blood cell count" },
+        "valueQuantity": { "value": 14.2, "unit": "10*3/uL" },
+        "effectiveDateTime": "2026-08-01T09:30:00Z"
+      }
+    }
+  ]
+}

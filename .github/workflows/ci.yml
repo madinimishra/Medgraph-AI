@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      falkordb:
+        image: falkordb/falkordb:latest
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            poppler-utils libmagic1 libgl1 libglib2.0-0
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run test suite
+        env:
+          # Minimal settings so app.core.config.Settings can load without
+          # a real .env file in CI - no real secrets needed for the test
+          # suite, which never calls a live LLM (those calls are mocked).
+          APP_NAME: MedGraph AI
+          APP_VERSION: ci
+          DEBUG: "true"
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          POSTGRES_DB: medgraph
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          SECRET_KEY: ci-test-secret-key
+          ALGORITHM: HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+          FALKOR_HOST: localhost
+          FALKOR_PORT: "6379"
+          FALKOR_GRAPH: hospital_graph
+          FALKOR_SYNTHEA_GRAPH: medgraph_synthea_ci
+          GEMINI_API_KEY: unused-in-ci
+        run: python -m pytest tests/ -v
